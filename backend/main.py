@@ -91,4 +91,7 @@ def registrazione_utente(utente:UtenteCreate,session:Session=Depends(get_db)):
             detail="Email già registrata o vincolo del database violato"
         )
 
-    return nuovo_utente
+    return {
+        "msg":"Utente registrato correttamente",
+        nuovo_utente
+    }
