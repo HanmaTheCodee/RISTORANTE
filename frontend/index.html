@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <input type="text" id="testo">
+    <button onclick="myfunc()">Invio</button>
+    <div id="msg">
+
+    </div>
+    <script>
+        async function myfunc() {
+            let valore = document.getElementById("testo").value;
+
+            let risposta = await fetch(`http://127.0.0.1:8000/list?testo_lungo=${valore}`);
+            let rispostaJson = await risposta.json();
+
+            console.log(rispostaJson);
+            document.getElementById("msg").innerHTML = rispostaJson.msg;
+        }
+    </script>
+</body>
+
+</html>
