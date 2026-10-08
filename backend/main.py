@@ -92,6 +92,5 @@ def registrazione_utente(utente:UtenteCreate,session:Session=Depends(get_db)):
         )
 
     return {
-        "msg":"Utente registrato correttamente",
-        nuovo_utente
+        "msg": f"Utente {nuovo_utente.idUtente} registrato correttamente"
     }
