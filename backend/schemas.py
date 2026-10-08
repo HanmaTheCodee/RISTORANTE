@@ -9,3 +9,5 @@ class UtenteCreate(BaseModel):
     regione: str = Field(min_length=1, max_length=100)
     cap: str = Field(min_length=1, max_length=25)
 
+class AccountCreate(BaseModel):
+    password:str=Field(min_length=8)

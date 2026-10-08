@@ -3,8 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from .database import SessionLocal
-from .models import Utente
-from .schemas import UtenteCreate
+from .models import Utente,Account
+from .schemas import UtenteCreate,AccountCreate
+from pwdlib import PasswordHash
+
+
 
 app = FastAPI()
 
@@ -67,9 +70,10 @@ def elimina_utente(id_utente:int,session:Session=Depends(get_db)):
 
 
 
+password_hash = PasswordHash.recommended()
 #ENDPOINT PER LA REGISTRAZIONE
 @app.post("/register",status_code=201)
-def registrazione_utente(utente:UtenteCreate,session:Session=Depends(get_db)):
+def registrazione_utente(utente:UtenteCreate,account:AccountCreate,session:Session=Depends(get_db)):
 
     nuovo_utente=Utente(
         email=utente.email,
@@ -80,6 +84,11 @@ def registrazione_utente(utente:UtenteCreate,session:Session=Depends(get_db)):
         regione=utente.regione
 
     )
+    
+    nuovo_account=Account(
+        passHash=password_hash.hash(account.password)
+    )
+    nuovo_utente.account=nuovo_account
 
     try:
         session.add(nuovo_utente)
