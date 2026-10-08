@@ -166,7 +166,7 @@ def get_ordini_con_persone(
         select(Ordine, Persona)
         .join(
             Persona,
-            Ordine.id_persona == Persona.id
+            Ordine.id_persona == Persona.id_persona
         )
     )
 

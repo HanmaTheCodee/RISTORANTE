@@ -17,7 +17,7 @@ class Base(DeclarativeBase):
 class Persona(Base):
     __tablename__="persona"
 
-    id_eta:Mapped[int]=mapped_column(Integer,primary_key=True)
+    id_persona:Mapped[int]=mapped_column(Integer,primary_key=True)
     nome:Mapped[str]=mapped_column(String(40),nullable=False)
     eta:Mapped[int]=mapped_column(Integer,nullable=False)
     ordini:Mapped[list["Ordine"]]=relationship(back_populates="persona")
@@ -28,7 +28,7 @@ class Ordine(Base):
     id :Mapped[int]=mapped_column(Integer,primary_key=True)
     descrizione:Mapped[str]=mapped_column(String(255),nullable=False)
     prezzo:Mapped[int]=mapped_column(Integer,nullable=False)
-    id_persona:Mapped[int]=mapped_column(ForeignKey("persona.id"))
+    id_persona:Mapped[int]=mapped_column(ForeignKey("persona.id_persona"))
     persona:Mapped["Persona"]=relationship(back_populates="ordini")
 
 #prendi tutte le tabelle descritte nei model che derivano da Base e crea nel database quelle che ancora non esistono

@@ -1,64 +1,94 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from sqlalchemy import select
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
-from database import engine,Persona
+from .database import SessionLocal
+from .models import Utente
+from .schemas import UtenteCreate
 
-app=FastAPI()
+app = FastAPI()
 
-class PersonaInput(BaseModel):
-    nome:str
-    eta:int
-class PersonaUpdate(BaseModel):
-    nome: str
-@app.get("/persone")
-def get_persone():
 
-    with Session(engine) as session:
-        stmt=select(Persona)
+# Gestione della sessione SQLAlchemy
+def get_db():
+    with SessionLocal() as session:
+        yield session
 
-        persone=session.scalars(stmt).all()
 
-        return persone
-@app.post("/persone")
-def inserisci_persona(dati:PersonaInput):
+# Inserimento di un nuovo utente
+@app.post("/utenti", status_code=201)
+def crea_utente(
+    utente: UtenteCreate,
+    session: Session = Depends(get_db)
+):
 
-    persona=Persona(
-        nome=dati.nome,
-        eta=dati.eta
+    nuovo_utente = Utente(
+        email=utente.email,
+        nome=utente.nome,
+        cognome=utente.cognome,
+        citta=utente.citta,
+        regione=utente.regione,
+        cap=utente.cap
     )
-    
-    with Session(engine) as session:
-        
-        session.add(persona)
+
+    try:
+        session.add(nuovo_utente)
         session.commit()
+        session.refresh(nuovo_utente)
 
-    return{
-        "Persona inserita correttamente"
-    }
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Email già registrata o vincolo del database violato"
+        )
 
-@app.patch("/persone/{id_persona}")
-def modifica_persona(id_persona:int,dati:PersonaUpdate):
-    with Session(engine) as session:
-        persona=session.get(Persona,id_persona)
+    return nuovo_utente
 
-        persona.nome=dati.nome
+@app.delete("/utenti/{id_utente}", status_code=200)
+def elimina_utente(id_utente:int,session:Session=Depends(get_db)):
+    utente = session.get(Utente, id_utente)
 
+    if utente is None:
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="Utente non trovato"
+
+        )
+
+    session.delete(utente)
+
+    session.commit()
+
+    return {"message": "Utente eliminato correttamente"}
+
+
+
+#ENDPOINT PER LA REGISTRAZIONE
+@app.post("/register",status_code=201)
+def registrazione_utente(utente:UtenteCreate,session:Session=Depends(get_db)):
+
+    nuovo_utente=Utente(
+        email=utente.email,
+        nome=utente.nome,
+        cognome=utente.cognome,
+        citta=utente.citta,
+        cap=utente.cap,
+        regione=utente.regione
+
+    )
+
+    try:
+        session.add(nuovo_utente)
         session.commit()
-    return{
-        "msg":f"Nome persona con id: {id_persona} modificata con successo"
-    }
+    except:
+        session.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Email già registrata o vincolo del database violato"
+        )
 
-
-
-@app.delete("/persone/{id_persona}")
-def elimina_persona(id_persona:int):
-    with Session(engine) as session:
-        persona=session.get(Persona,id_persona)
-        session.delete(persona)
-        session.commit()
-
-    return{
-        "msg":f"Persona con id {id_persona} eliminata correttamente!"
-    }
+    return nuovo_utente
