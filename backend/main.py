@@ -18,35 +18,7 @@ def get_db():
         yield session
 
 
-# Inserimento di un nuovo utente
-@app.post("/utenti", status_code=201)
-def crea_utente(
-    utente: UtenteCreate,
-    session: Session = Depends(get_db)
-):
 
-    nuovo_utente = Utente(
-        email=utente.email,
-        nome=utente.nome,
-        cognome=utente.cognome,
-        citta=utente.citta,
-        regione=utente.regione,
-        cap=utente.cap
-    )
-
-    try:
-        session.add(nuovo_utente)
-        session.commit()
-        session.refresh(nuovo_utente)
-
-    except IntegrityError:
-        session.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail="Email già registrata o vincolo del database violato"
-        )
-
-    return nuovo_utente
 
 @app.delete("/utenti/{id_utente}", status_code=200)
 def elimina_utente(id_utente:int,session:Session=Depends(get_db)):
@@ -93,7 +65,7 @@ def registrazione_utente(utente:RegistrazioneCreate,session:Session=Depends(get_
     try:
         session.add(nuovo_utente)
         session.commit()
-    except:
+    except IntegrityError:
         session.rollback()
         raise HTTPException(
             status_code=409,
