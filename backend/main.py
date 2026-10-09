@@ -233,22 +233,6 @@ def profilo_utente(
     }
 
 
-#ENDPOINT PER LA CREAZIONE DI ORDINI
-@app.post("/ordini",status_code=201)
-def aggiungi_ordine(lista_piatti:list[PiattoOrdineCreate],utente_corrente:Utente=Depends(get_current_user),session:Session=Depends(get_db)):
 
-    for piatto in lista_piatti:
-        piatto_db=session.get(Piatto,piatto.idPiatto)
 
-        if piatto_db is None:
-             raise HTTPException(
-
-                status_code=404,
-
-                detail=f"Piatto {piatto.idPiatto} non trovato"
-
-            )
-
-    return{
-    "messaggio": "Tutti i piatti esistono"
-    }
+    
