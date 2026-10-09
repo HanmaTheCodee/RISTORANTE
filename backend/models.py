@@ -67,7 +67,9 @@ class Utente(Base):
 
     # 1:1 con Account
     account: Mapped["Account | None"] = relationship(
-        back_populates="utente"
+        back_populates="utente",
+        cascade="all, delete-orphan"
+    
     )
 
     # 1:N con Ordine
@@ -156,6 +158,7 @@ class Cucina(Base):
 
     ordini: Mapped[list["Ordine"]] = relationship(
         back_populates="cucina"
+    
     )
 
 
