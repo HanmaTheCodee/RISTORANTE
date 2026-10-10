@@ -321,7 +321,7 @@ class Ordine(Base):
     )
 
     numOrdine: Mapped[str] = mapped_column(
-        String(6),
+        String(3),
         unique=True,
         nullable=False
     )
